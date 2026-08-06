@@ -135,7 +135,7 @@ export default function DashboardPage() {
         {/* Top Filter Bar */}
         <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800">
             <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto">
-              <Select value={filterWebsite} onValueChange={setFilterWebsite}>
+              <Select value={filterWebsite} onValueChange={(val: any) => setFilterWebsite(val)}>
                 <SelectTrigger className="w-[160px] bg-slate-50 dark:bg-slate-950">
                   <SelectValue placeholder="All Websites" />
                 </SelectTrigger>
@@ -176,7 +176,7 @@ export default function DashboardPage() {
               <Input type="date" className="h-8 w-32 border-none bg-transparent px-1" value={dateRange.end} onChange={e => setDateRange(prev => ({ ...prev, end: e.target.value }))} />
             </div>
 
-            <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <Select value={filterStatus} onValueChange={(val: any) => setFilterStatus(val)}>
               <SelectTrigger className="w-[140px] bg-slate-50 dark:bg-slate-950">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
@@ -189,7 +189,7 @@ export default function DashboardPage() {
               </SelectContent>
             </Select>
 
-            <Select value={filterPriority} onValueChange={setFilterPriority}>
+            <Select value={filterPriority} onValueChange={(val: any) => setFilterPriority(val)}>
               <SelectTrigger className="w-[140px] bg-slate-50 dark:bg-slate-950">
                 <SelectValue placeholder="Priority" />
               </SelectTrigger>

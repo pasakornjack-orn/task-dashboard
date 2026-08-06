@@ -1,11 +1,11 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { User, Role } from "./types";
+import { User, Role, AuthUser } from "./types";
 import { useRouter } from "next/navigation";
 
 interface AuthContextType {
-  user: User | null;
+  user: AuthUser | null;
   login: (username?: string, password?: string) => Promise<boolean | void>;
   logout: () => void;
 }
@@ -15,7 +15,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 import { mockUsers } from "./mock-users";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       if (res.ok) {
         const foundUser = await res.json();
-        const newUser: User = {
+        const newUser: AuthUser = {
           id: foundUser.id,
           username: foundUser.username,
           name: foundUser.name,

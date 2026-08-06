@@ -46,7 +46,7 @@ let mockTasks: Task[] = [
     Task_Name: "ออกแบบ Banner ใหม่",
     Category: "Graphic / Artwork",
     Assignee: "นางสาว D",
-    Status: "Blocked",
+    Status: "To Do",
     Priority: "High",
     Start_Date: "2026-08-05",
     Due_Date: "2026-08-15",

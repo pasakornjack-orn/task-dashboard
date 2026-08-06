@@ -6,10 +6,10 @@ import {
   deleteGoogleSheetUserRow,
   getSheetIdByName
 } from "@/lib/services/google-sheets";
-import { User, Role } from "@/lib/types";
+import { User, Role, AuthUser } from "@/lib/types";
 
 // Helper to convert sheet row array to User object
-const mapRowToUser = (row: any[]): User => {
+const mapRowToUser = (row: any[]): AuthUser => {
   return {
     id: row[0],
     username: row[1],

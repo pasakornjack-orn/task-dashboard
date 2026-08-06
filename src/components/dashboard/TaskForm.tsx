@@ -130,7 +130,7 @@ export function TaskForm({ open, onOpenChange, task, onSave, fixedWebsites, isMa
                   <Button type="button" variant="outline" onClick={() => setIsCustomWebsite(false)}>X</Button>
                 </div>
               ) : (
-                <Select value={formData.Website_Name} onValueChange={handleWebsiteChange}>
+                <Select value={formData.Website_Name} onValueChange={(v: any) => handleWebsiteChange(v)}>
                   <SelectTrigger><SelectValue placeholder="Select a website" /></SelectTrigger>
                   <SelectContent>
                     {(fixedWebsites && fixedWebsites.length > 0 ? fixedWebsites : availableWebsites).map(w => <SelectItem key={w} value={w}>{w}</SelectItem>)}
@@ -165,7 +165,7 @@ export function TaskForm({ open, onOpenChange, task, onSave, fixedWebsites, isMa
                   <Button type="button" variant="outline" onClick={() => setIsCustomCategory(false)}>X</Button>
                 </div>
               ) : (
-                <Select value={formData.Category} onValueChange={handleCategoryChange}>
+                <Select value={formData.Category} onValueChange={(v: any) => handleCategoryChange(v)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {DEFAULT_CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
@@ -189,7 +189,7 @@ export function TaskForm({ open, onOpenChange, task, onSave, fixedWebsites, isMa
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Status</Label>
-              <Select value={formData.Status} onValueChange={v => handleChange("Status", v)}>
+              <Select value={formData.Status} onValueChange={(v: any) => handleChange("Status", v)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {STATUSES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
@@ -198,7 +198,7 @@ export function TaskForm({ open, onOpenChange, task, onSave, fixedWebsites, isMa
             </div>
             <div className="space-y-2">
               <Label>Priority</Label>
-              <Select value={formData.Priority} onValueChange={v => handleChange("Priority", v)}>
+              <Select value={formData.Priority} onValueChange={(v: any) => handleChange("Priority", v)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {PRIORITIES.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}

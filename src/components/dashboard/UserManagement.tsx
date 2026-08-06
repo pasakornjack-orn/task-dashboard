@@ -265,7 +265,7 @@ export function UserManagement() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Role</Label>
-                <Select value={formData.role} onValueChange={v => setFormData({...formData, role: v})}>
+                <Select value={formData.role} onValueChange={(v: any) => setFormData({...formData, role: v})}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Manager">Manager</SelectItem>
@@ -370,7 +370,7 @@ export function UserManagement() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Role</Label>
-                <Select value={editData.role} onValueChange={v => setEditData({...editData, role: v})}>
+                <Select value={editData.role} onValueChange={(v: any) => setEditData({...editData, role: v})}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Manager">Manager</SelectItem>

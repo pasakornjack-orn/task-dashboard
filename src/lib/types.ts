@@ -10,6 +10,11 @@ export interface User {
   assignedWebsites?: string[]; // If Site Team Member, they only see these websites
 }
 
+export interface AuthUser extends User {
+  username: string;
+  password?: string;
+}
+
 export interface Task {
   Task_ID: string;
   Website_Name: string;
