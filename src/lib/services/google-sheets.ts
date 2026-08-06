@@ -98,3 +98,52 @@ export const deleteGoogleSheetUserRow = async (sheetId: number, rowIndex: number
     }
   });
 }
+
+// Additional helpers for Tasks
+export const appendGoogleSheetTask = async (values: any[]) => {
+  if (!process.env.SPREADSHEET_ID) return null;
+  const sheets = getSheetsInstance();
+  return await sheets.spreadsheets.values.append({
+    spreadsheetId: getSpreadsheetId(),
+    range: 'Tasks!A:I',
+    valueInputOption: 'USER_ENTERED',
+    requestBody: {
+      values: [values],
+    },
+  });
+};
+
+export const updateGoogleSheetTask = async (rowIndex: number, values: any[]) => {
+  if (!process.env.SPREADSHEET_ID) return null;
+  const sheets = getSheetsInstance();
+  return await sheets.spreadsheets.values.update({
+    spreadsheetId: getSpreadsheetId(),
+    range: `Tasks!A${rowIndex}:I${rowIndex}`,
+    valueInputOption: 'USER_ENTERED',
+    requestBody: {
+      values: [values],
+    },
+  });
+};
+
+export const deleteGoogleSheetTaskRow = async (sheetId: number, rowIndex: number) => {
+  if (!process.env.SPREADSHEET_ID) return null;
+  const sheets = getSheetsInstance();
+  return await sheets.spreadsheets.batchUpdate({
+    spreadsheetId: getSpreadsheetId(),
+    requestBody: {
+      requests: [
+        {
+          deleteDimension: {
+            range: {
+              sheetId: sheetId,
+              dimension: 'ROWS',
+              startIndex: rowIndex - 1, // 0-indexed, inclusive
+              endIndex: rowIndex,       // 0-indexed, exclusive
+            }
+          }
+        }
+      ]
+    }
+  });
+};
