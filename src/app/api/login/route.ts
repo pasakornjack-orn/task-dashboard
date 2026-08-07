@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { fetchGoogleSheetUsers } from "@/lib/services/google-sheets";
+import { fetchGoogleSheetUsers, appendLoginLog } from "@/lib/services/google-sheets";
 
 export async function POST(request: Request) {
   try {
@@ -12,6 +12,15 @@ export async function POST(request: Request) {
     const userRow = rows.find(r => r[1] === username && r[2] === password);
     
     if (userRow) {
+      // Log successful login
+      try {
+        const timestamp = new Date().toISOString();
+        const logId = `LOG-${Date.now()}`;
+        await appendLoginLog([logId, timestamp, userRow[1], userRow[3], userRow[4]]);
+      } catch (logError) {
+        console.error("Failed to append login log", logError);
+      }
+
       return NextResponse.json({
         id: userRow[0],
         username: userRow[1],

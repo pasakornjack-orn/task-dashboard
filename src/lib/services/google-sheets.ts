@@ -147,3 +147,27 @@ export const deleteGoogleSheetTaskRow = async (sheetId: number, rowIndex: number
     }
   });
 };
+
+// Helpers for Login Logs
+export const fetchLoginLogs = async () => {
+  if (!process.env.SPREADSHEET_ID) return null;
+  const sheets = getSheetsInstance();
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: getSpreadsheetId(),
+    range: 'Login_Logs!A2:E',
+  });
+  return res.data.values || [];
+};
+
+export const appendLoginLog = async (values: any[]) => {
+  if (!process.env.SPREADSHEET_ID) return null;
+  const sheets = getSheetsInstance();
+  return await sheets.spreadsheets.values.append({
+    spreadsheetId: getSpreadsheetId(),
+    range: 'Login_Logs!A:E',
+    valueInputOption: 'USER_ENTERED',
+    requestBody: {
+      values: [values],
+    },
+  });
+};

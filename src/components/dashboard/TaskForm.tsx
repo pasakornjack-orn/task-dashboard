@@ -16,18 +16,23 @@ interface TaskFormProps {
   fixedWebsites?: string[];
   isManager?: boolean;
   availableWebsites?: string[];
+  allTasks?: Task[];
 }
 
 const DEFAULT_CATEGORIES = ["SEO Technical", "Content Marketing", "Website Development / WP", "Digital Ads / Campaign", "Graphic / Artwork", "Maintenance & Backup"];
 const STATUSES: Status[] = ["To Do", "In Progress", "Under Review", "Done"];
 const PRIORITIES: Priority[] = ["High", "Medium", "Low"];
 
-export function TaskForm({ open, onOpenChange, task, onSave, fixedWebsites, isManager, availableWebsites = [], currentUser }: TaskFormProps & { currentUser?: { name: string, role: string } }) {
+export function TaskForm({ open, onOpenChange, task, onSave, fixedWebsites, isManager, availableWebsites = [], allTasks = [], currentUser }: TaskFormProps & { currentUser?: { name: string, role: string } }) {
   const [formData, setFormData] = useState<Partial<Task>>({});
   const [isCustomCategory, setIsCustomCategory] = useState(false);
   const [customCategory, setCustomCategory] = useState("");
   const [isCustomWebsite, setIsCustomWebsite] = useState(false);
   const [customWebsite, setCustomWebsite] = useState("");
+  const [isCustomMainTask, setIsCustomMainTask] = useState(false);
+  const [customMainTask, setCustomMainTask] = useState("");
+
+  const availableMainTasks = Array.from(new Set(allTasks.filter(t => t.Website_Name === formData.Website_Name && t.Main_Task).map(t => t.Main_Task)));
 
   useEffect(() => {
     if (open) {
@@ -55,6 +60,8 @@ export function TaskForm({ open, onOpenChange, task, onSave, fixedWebsites, isMa
         setCustomCategory("");
         setIsCustomWebsite(false);
         setCustomWebsite("");
+        setIsCustomMainTask(false);
+        setCustomMainTask("");
       }
     }
   }, [task, fixedWebsites, open, currentUser]);
@@ -83,12 +90,23 @@ export function TaskForm({ open, onOpenChange, task, onSave, fixedWebsites, isMa
     }
   };
 
+  const handleMainTaskChange = (v: string) => {
+    if (v === "CUSTOM") {
+      setIsCustomMainTask(true);
+      handleChange("Main_Task", "");
+    } else {
+      setIsCustomMainTask(false);
+      handleChange("Main_Task", v);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave({
       ...formData,
       Category: isCustomCategory ? customCategory : formData.Category,
-      Website_Name: isCustomWebsite ? customWebsite : formData.Website_Name
+      Website_Name: isCustomWebsite ? customWebsite : formData.Website_Name,
+      Main_Task: isCustomMainTask ? customMainTask : formData.Main_Task
     });
     onOpenChange(false);
   };
@@ -143,7 +161,25 @@ export function TaskForm({ open, onOpenChange, task, onSave, fixedWebsites, isMa
 
           <div className="space-y-2">
             <Label>Main Task (Parent)</Label>
-            <Input required value={formData.Main_Task || ""} onChange={e => handleChange("Main_Task", e.target.value)} placeholder="e.g. SEO Audit ประจำเดือน" />
+            {isCustomMainTask ? (
+              <div className="flex gap-2">
+                <Input 
+                  required 
+                  value={customMainTask} 
+                  onChange={e => setCustomMainTask(e.target.value)} 
+                  placeholder="e.g. SEO Audit ประจำเดือน" 
+                />
+                <Button type="button" variant="outline" onClick={() => setIsCustomMainTask(false)}>X</Button>
+              </div>
+            ) : (
+              <Select value={formData.Main_Task || ""} onValueChange={(v: any) => handleMainTaskChange(v)}>
+                <SelectTrigger><SelectValue placeholder={formData.Website_Name ? "Select a main task" : "Select website first"} /></SelectTrigger>
+                <SelectContent>
+                  {availableMainTasks.map(mt => <SelectItem key={mt} value={mt}>{mt}</SelectItem>)}
+                  <SelectItem value="CUSTOM" className="font-bold text-blue-600">+ Add New Main Task</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           <div className="space-y-2">

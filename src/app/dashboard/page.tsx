@@ -241,6 +241,7 @@ export default function DashboardPage() {
             isManager={user?.role === "Manager"}
             currentUser={user || undefined}
             availableWebsites={Array.from(new Set(tasks.map(t => t.Website_Name)))}
+            allTasks={tasks}
           />
         )}
     </div>

@@ -94,6 +94,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 >
                   User Management
                 </Button>
+                <Button 
+                  variant="ghost" 
+                  className={`font-medium ${pathname === "/dashboard/logs" ? "bg-slate-100 text-slate-900" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"}`} 
+                  onClick={() => router.push("/dashboard/logs")}
+                >
+                  Login Logs
+                </Button>
               </nav>
             )}
           </div>
