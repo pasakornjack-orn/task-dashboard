@@ -35,7 +35,7 @@ export const fetchGoogleSheetTasks = async () => {
   const sheets = getSheetsInstance();
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: getSpreadsheetId(),
-    range: 'Tasks!A2:I',
+    range: 'Tasks!A2:K',
   });
   return res.data.values || [];
 };
@@ -105,7 +105,7 @@ export const appendGoogleSheetTask = async (values: any[]) => {
   const sheets = getSheetsInstance();
   return await sheets.spreadsheets.values.append({
     spreadsheetId: getSpreadsheetId(),
-    range: 'Tasks!A:I',
+    range: 'Tasks!A:K',
     valueInputOption: 'USER_ENTERED',
     requestBody: {
       values: [values],
@@ -118,7 +118,7 @@ export const updateGoogleSheetTask = async (rowIndex: number, values: any[]) => 
   const sheets = getSheetsInstance();
   return await sheets.spreadsheets.values.update({
     spreadsheetId: getSpreadsheetId(),
-    range: `Tasks!A${rowIndex}:I${rowIndex}`,
+    range: `Tasks!A${rowIndex}:K${rowIndex}`,
     valueInputOption: 'USER_ENTERED',
     requestBody: {
       values: [values],

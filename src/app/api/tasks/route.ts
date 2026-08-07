@@ -15,8 +15,8 @@ const mapRowToTask = (row: any[]): Task => {
     Task_ID: row[0],
     Task_Name: row[1],
     Website_Name: row[2],
-    Main_Task: "General",
-    Category: "General",
+    Main_Task: row[9] || "General",
+    Category: row[10] || "General",
     Assignee: row[3],
     Status: row[4],
     Priority: row[5],
@@ -73,7 +73,9 @@ export async function POST(request: Request) {
       newTask.Priority,
       newTask.Start_Date,
       newTask.Due_Date,
-      newTask.Checklist_Remarks || ""
+      newTask.Checklist_Remarks || "",
+      newTask.Main_Task,
+      newTask.Category
     ];
     
     await appendGoogleSheetTask(newRow);
@@ -111,7 +113,9 @@ export async function PUT(request: Request) {
       body.Priority !== undefined ? body.Priority : oldRow[5],
       body.Start_Date !== undefined ? body.Start_Date : oldRow[6],
       body.Due_Date !== undefined ? body.Due_Date : oldRow[7],
-      body.Checklist_Remarks !== undefined ? body.Checklist_Remarks : (oldRow[8] || "")
+      body.Checklist_Remarks !== undefined ? body.Checklist_Remarks : (oldRow[8] || ""),
+      body.Main_Task !== undefined ? body.Main_Task : (oldRow[9] || "General"),
+      body.Category !== undefined ? body.Category : (oldRow[10] || "General")
     ];
     
     await updateGoogleSheetTask(sheetRowIndex, newRow);

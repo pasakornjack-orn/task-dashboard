@@ -46,6 +46,14 @@ export function TaskTable({ tasks, currentUser, onEditTask, onDeleteTask }: Task
     setExpandedGroups(prev => ({ ...prev, [mainTask]: !prev[mainTask] }));
   };
 
+  const isOverdue = (dueDateStr: string, status: string) => {
+    if (status === "Done") return false;
+    const dueDate = new Date(dueDateStr);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Normalize to start of today
+    return dueDate < today;
+  };
+
   return (
     <Card className="shadow-sm">
       <CardHeader>
@@ -82,7 +90,7 @@ export function TaskTable({ tasks, currentUser, onEditTask, onDeleteTask }: Task
                         {expandedGroups[mainTask] ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                       </Button>
                     </TableCell>
-                    <TableCell colSpan={8} className="cursor-pointer" onClick={() => toggleGroup(mainTask)}>
+                    <TableCell colSpan={8} className={`cursor-pointer ${groupedTasks[mainTask].some(t => isOverdue(t.Due_Date, t.Status)) ? 'text-red-600 font-bold' : ''}`} onClick={() => toggleGroup(mainTask)}>
                       {mainTask} <span className="text-slate-400 font-normal ml-2">({groupedTasks[mainTask].length} tasks)</span>
                     </TableCell>
                   </TableRow>
@@ -95,12 +103,16 @@ export function TaskTable({ tasks, currentUser, onEditTask, onDeleteTask }: Task
                     return (
                       <TableRow key={task.Task_ID} className="bg-white dark:bg-slate-950">
                         <TableCell></TableCell>
-                        <TableCell className="pl-6 text-sm text-slate-600 dark:text-slate-300">{task.Task_Name}</TableCell>
+                        <TableCell className={`pl-6 text-sm ${isOverdue(task.Due_Date, task.Status) ? 'text-red-600 font-bold' : 'text-slate-600 dark:text-slate-300'}`}>
+                          {task.Task_Name}
+                        </TableCell>
                         <TableCell className="text-xs text-slate-500">{task.Task_ID}</TableCell>
                         <TableCell className="text-sm">{task.Assignee}</TableCell>
                         <TableCell className="text-xs text-slate-500">{task.Category}</TableCell>
                         <TableCell className="text-xs text-slate-500">{task.Start_Date}</TableCell>
-                        <TableCell className="text-xs text-slate-500">{task.Due_Date}</TableCell>
+                        <TableCell className={`text-xs ${isOverdue(task.Due_Date, task.Status) ? 'text-red-600 font-bold' : 'text-slate-500'}`}>
+                          {task.Due_Date}
+                        </TableCell>
                         <TableCell>
                           <Badge variant={STATUS_VARIANTS[task.Status]} className={getStatusColor(task.Status)}>
                             {task.Status}
