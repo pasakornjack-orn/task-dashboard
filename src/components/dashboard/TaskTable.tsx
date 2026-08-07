@@ -82,7 +82,13 @@ export function TaskTable({ tasks, currentUser, onEditTask, onDeleteTask }: Task
                 </TableCell>
               </TableRow>
             ) : (
-              Object.keys(groupedTasks).map(mainTask => (
+              Object.keys(groupedTasks)
+                .sort((a, b) => {
+                  const minStartA = Math.min(...groupedTasks[a].map(t => new Date(t.Start_Date).getTime()));
+                  const minStartB = Math.min(...groupedTasks[b].map(t => new Date(t.Start_Date).getTime()));
+                  return minStartA - minStartB;
+                })
+                .map(mainTask => (
                 <React.Fragment key={mainTask}>
                   <TableRow className="bg-slate-50/50 dark:bg-slate-800/30 font-medium hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                     <TableCell>
