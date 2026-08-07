@@ -80,7 +80,13 @@ export function GanttChart({ tasks, dateRange }: GanttChartProps) {
             {Object.keys(groupedTasks).length === 0 ? (
               <div className="p-8 text-center text-slate-500">No tasks in this period</div>
             ) : (
-              Object.keys(groupedTasks).map(mainTask => {
+              Object.keys(groupedTasks)
+                .sort((a, b) => {
+                  const minStartA = Math.min(...groupedTasks[a].map(t => new Date(t.Start_Date).getTime()));
+                  const minStartB = Math.min(...groupedTasks[b].map(t => new Date(t.Start_Date).getTime()));
+                  return minStartA - minStartB;
+                })
+                .map(mainTask => {
                 const groupTasks = groupedTasks[mainTask];
                 const groupStarts = groupTasks.map(t => new Date(t.Start_Date).getTime());
                 const groupEnds = groupTasks.map(t => new Date(t.Due_Date).getTime());
