@@ -80,7 +80,23 @@ export function GanttChart({ tasks, dateRange }: GanttChartProps) {
             {Object.keys(groupedTasks).length === 0 ? (
               <div className="p-8 text-center text-slate-500">No tasks in this period</div>
             ) : (
-              Object.keys(groupedTasks).map(mainTask => (
+              Object.keys(groupedTasks).map(mainTask => {
+                const groupTasks = groupedTasks[mainTask];
+                const groupStarts = groupTasks.map(t => new Date(t.Start_Date).getTime());
+                const groupEnds = groupTasks.map(t => new Date(t.Due_Date).getTime());
+                
+                const groupMinStart = new Date(Math.min(...groupStarts));
+                const groupMaxEnd = new Date(Math.max(...groupEnds));
+
+                const startDiff = differenceInDays(groupMinStart, dateRange.start);
+                const duration = differenceInDays(groupMaxEnd, groupMinStart) + 1;
+                
+                const startIdx = Math.max(0, startDiff);
+                const endIdx = Math.min(daysInView, startDiff + duration);
+                const visibleDuration = endIdx - startIdx;
+                const isVisible = visibleDuration > 0 && startIdx < daysInView;
+
+                return (
                 <React.Fragment key={mainTask}>
                   {/* Group Header Row */}
                   <div className="flex border-b border-slate-100 dark:border-slate-800/50 bg-slate-50/50 dark:bg-slate-800/30 font-medium hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors z-10 relative">
@@ -96,6 +112,17 @@ export function GanttChart({ tasks, dateRange }: GanttChartProps) {
                           <div key={i} className="flex-1 border-r border-slate-100 dark:border-slate-800/30"></div>
                         ))}
                       </div>
+                      
+                      {/* Summary Bar for Group */}
+                      {!expandedGroups[mainTask] && isVisible && (
+                        <div 
+                          className="absolute top-3 h-4 rounded-full shadow-sm bg-slate-300 dark:bg-slate-600 opacity-60 pointer-events-none"
+                          style={{
+                            left: `${(startIdx / daysInView) * 100}%`,
+                            width: `${(visibleDuration / daysInView) * 100}%`
+                          }}
+                        />
+                      )}
                     </div>
                   </div>
 
@@ -142,7 +169,8 @@ export function GanttChart({ tasks, dateRange }: GanttChartProps) {
                     );
                   })}
                 </React.Fragment>
-              ))
+                );
+              })
             )}
           </div>
         </div>
