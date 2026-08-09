@@ -5,7 +5,7 @@ import { Task } from "@/lib/types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronRight, Edit, Trash2, Eye } from "lucide-react";
+import { ChevronDown, ChevronRight, Edit, Trash2, Eye, Download } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { User } from "@/lib/types";
@@ -57,10 +57,46 @@ export function TaskTable({ tasks, currentUser, onEditTask, onDeleteTask }: Task
     return dueDate < today;
   };
 
+  const exportToCSV = () => {
+    if (!currentUser) return;
+    
+    const userTasks = tasks.filter(t => t.Assignee === currentUser.name);
+    if (userTasks.length === 0) {
+      alert("No tasks found for you.");
+      return;
+    }
+    
+    const headers = ["Main Task", "Sub Task", "Remark"];
+    const escapeCSV = (str: string) => {
+      if (!str) return '""';
+      return `"${str.replace(/"/g, '""')}"`;
+    };
+    
+    const rows = userTasks.map(t => [
+      escapeCSV(t.Main_Task),
+      escapeCSV(t.Task_Name),
+      escapeCSV(t.Checklist_Remarks || "")
+    ].join(","));
+    
+    const csvContent = [headers.join(","), ...rows].join("\n");
+    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    const monthStr = new Date().toLocaleString("en-US", { month: "short", year: "numeric" });
+    link.setAttribute("download", `My_Report_${currentUser.name}_${monthStr}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <Card className="shadow-sm">
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-lg font-semibold text-slate-800 dark:text-slate-100">Task Details</CardTitle>
+        <Button onClick={exportToCSV} variant="outline" size="sm" className="bg-white hover:bg-slate-50 text-slate-700 dark:bg-slate-900 dark:text-slate-200">
+          <Download className="w-4 h-4 mr-2" /> Export My Report (CSV)
+        </Button>
       </CardHeader>
       <CardContent className="p-0">
         <Table>
