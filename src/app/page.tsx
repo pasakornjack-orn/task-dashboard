@@ -4,14 +4,19 @@ import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useState } from "react";
-import { LogIn } from "lucide-react";
+import { LogIn, Mail } from "lucide-react";
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const { login } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  
+  const [isResetOpen, setIsResetOpen] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
 
   const handleLogin = async () => {
     setError("");
@@ -22,6 +27,38 @@ export default function LoginPage() {
     const success = await login(username, password);
     if (!success) {
       setError("Invalid username or password");
+    }
+  };
+
+  const [isResetting, setIsResetting] = useState(false);
+
+  const handleResetPassword = async () => {
+    if (!resetEmail) {
+      toast.error("Please enter a valid username/email.");
+      return;
+    }
+    
+    setIsResetting(true);
+    try {
+      const res = await fetch("/api/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: resetEmail })
+      });
+      
+      const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to send reset link");
+      }
+      
+      toast.success(`Temporary password has been sent to ${resetEmail}`);
+      setIsResetOpen(false);
+      setResetEmail("");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to reset password");
+    } finally {
+      setIsResetting(false);
     }
   };
 
@@ -61,7 +98,50 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Password</label>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Password</label>
+                <Dialog open={isResetOpen} onOpenChange={setIsResetOpen}>
+                  <DialogTrigger>
+                    <button className="text-sm text-ci-blue hover:underline font-medium focus:outline-none">
+                      Forgot password?
+                    </button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Reset Password</DialogTitle>
+                      <DialogDescription>
+                        Enter your email address and we'll send you a link to reset your password.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex items-center space-x-2 py-4">
+                      <div className="grid flex-1 gap-2">
+                        <label htmlFor="email" className="sr-only">
+                          Email
+                        </label>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
+                          <Input
+                            id="email"
+                            type="text"
+                            placeholder="Enter your username"
+                            className="pl-10 h-11"
+                            value={resetEmail}
+                            onChange={(e) => setResetEmail(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleResetPassword()}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <Button 
+                      className="w-full bg-ci-blue hover:bg-ci-blue/90 text-white" 
+                      onClick={handleResetPassword}
+                      disabled={isResetting}
+                    >
+                      {isResetting ? "Sending..." : "Send Reset Link"}
+                    </Button>
+                  </DialogContent>
+                </Dialog>
+              </div>
               <Input 
                 type="password"
                 placeholder="Enter your password"

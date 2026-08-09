@@ -5,8 +5,9 @@ import { Task } from "@/lib/types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronRight, Edit, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronRight, Edit, Trash2, Eye } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { User } from "@/lib/types";
 
 interface TaskTableProps {
@@ -25,6 +26,8 @@ const STATUS_VARIANTS: Record<string, "default" | "secondary" | "destructive" | 
 
 export function TaskTable({ tasks, currentUser, onEditTask, onDeleteTask }: TaskTableProps) {
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
   const groupedTasks = tasks.reduce((acc, task) => {
     if (!acc[task.Main_Task]) acc[task.Main_Task] = [];
@@ -107,7 +110,14 @@ export function TaskTable({ tasks, currentUser, onEditTask, onDeleteTask }: Task
                     const canDelete = currentUser?.role === "Manager" || currentUser?.name === task.CreatedBy || (!task.CreatedBy && currentUser?.name === task.Assignee);
 
                     return (
-                      <TableRow key={task.Task_ID} className="bg-white dark:bg-slate-950">
+                      <TableRow 
+                        key={task.Task_ID} 
+                        className="bg-white dark:bg-slate-950 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors"
+                        onClick={() => {
+                          setSelectedTask(task);
+                          setIsViewModalOpen(true);
+                        }}
+                      >
                         <TableCell></TableCell>
                         <TableCell className={`pl-6 text-sm ${isOverdue(task.Due_Date, task.Status) ? 'text-red-600 font-bold' : 'text-slate-600 dark:text-slate-300'}`}>
                           {task.Task_Name}
@@ -126,7 +136,7 @@ export function TaskTable({ tasks, currentUser, onEditTask, onDeleteTask }: Task
                         </TableCell>
                         {currentUser?.role !== "Viewer" && (
                           <TableCell className="text-right">
-                            <div className="flex justify-end gap-1">
+                            <div className="flex justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                               <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-blue-600" onClick={() => onEditTask(task)}>
                                 <Edit className="h-4 w-4" />
                               </Button>
@@ -147,6 +157,82 @@ export function TaskTable({ tasks, currentUser, onEditTask, onDeleteTask }: Task
           </TableBody>
         </Table>
       </CardContent>
+
+      <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
+        <DialogContent className="sm:max-w-[600px] bg-white dark:bg-slate-950">
+          <DialogHeader>
+            <DialogTitle className="text-xl">Task Details</DialogTitle>
+          </DialogHeader>
+          
+          {selectedTask && (
+            <div className="space-y-4 py-4">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">{selectedTask.Task_Name}</h3>
+                  <p className="text-sm text-slate-500">ID: {selectedTask.Task_ID}</p>
+                </div>
+                <Badge variant={STATUS_VARIANTS[selectedTask.Status]} className={getStatusColor(selectedTask.Status)}>
+                  {selectedTask.Status}
+                </Badge>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 pt-2">
+                <div>
+                  <p className="text-sm font-medium text-slate-500">Website</p>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{selectedTask.Website_Name}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-slate-500">Main Task</p>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{selectedTask.Main_Task}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-slate-500">Assignee</p>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{selectedTask.Assignee}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-slate-500">Category</p>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{selectedTask.Category}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-slate-500">Start Date</p>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{selectedTask.Start_Date}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-slate-500">Due Date</p>
+                  <p className={`text-sm font-semibold ${isOverdue(selectedTask.Due_Date, selectedTask.Status) ? 'text-red-600' : 'text-slate-900 dark:text-slate-100'}`}>
+                    {selectedTask.Due_Date} {isOverdue(selectedTask.Due_Date, selectedTask.Status) && "(Overdue)"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-slate-500">Priority</p>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{selectedTask.Priority}</p>
+                </div>
+              </div>
+
+              <div className="pt-2 border-t mt-4">
+                <p className="text-sm font-medium text-slate-500 mb-2">Remarks / Notes</p>
+                <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-md min-h-[100px] text-sm whitespace-pre-wrap">
+                  {selectedTask.Checklist_Remarks || <span className="text-slate-400 italic">No remarks provided.</span>}
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsViewModalOpen(false)}>Close</Button>
+            {currentUser?.role !== "Viewer" && selectedTask && (
+              <Button 
+                onClick={() => {
+                  setIsViewModalOpen(false);
+                  onEditTask(selectedTask);
+                }}
+                className="bg-ci-green hover:bg-ci-green/90 text-white"
+              >
+                <Edit className="w-4 h-4 mr-2" /> Edit Task
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

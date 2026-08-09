@@ -19,14 +19,11 @@ interface TaskFormProps {
   allTasks?: Task[];
 }
 
-const DEFAULT_CATEGORIES = ["SEO Technical", "Content Marketing", "Website Development / WP", "Digital Ads / Campaign", "Graphic / Artwork", "Maintenance & Backup"];
 const STATUSES: Status[] = ["To Do", "In Progress", "Under Review", "Done"];
 const PRIORITIES: Priority[] = ["High", "Medium", "Low"];
 
 export function TaskForm({ open, onOpenChange, task, onSave, fixedWebsites, isManager, availableWebsites = [], allTasks = [], currentUser }: TaskFormProps & { currentUser?: { name: string, role: string } }) {
   const [formData, setFormData] = useState<Partial<Task>>({});
-  const [isCustomCategory, setIsCustomCategory] = useState(false);
-  const [customCategory, setCustomCategory] = useState("");
   const [isCustomWebsite, setIsCustomWebsite] = useState(false);
   const [customWebsite, setCustomWebsite] = useState("");
   const [isCustomMainTask, setIsCustomMainTask] = useState(false);
@@ -34,16 +31,32 @@ export function TaskForm({ open, onOpenChange, task, onSave, fixedWebsites, isMa
 
   const availableMainTasks = Array.from(new Set(allTasks.filter(t => t.Website_Name === formData.Website_Name && t.Main_Task).map(t => t.Main_Task)));
 
+  const [availableCategories, setAvailableCategories] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      if (!formData.Website_Name) return;
+      try {
+        const res = await fetch("/api/categories");
+        if (res.ok) {
+          const data = await res.json();
+          // Filter by current website
+          const websiteCats = data
+            .filter((c: any) => c.Website_Name === formData.Website_Name)
+            .map((c: any) => c.Category_Name);
+          setAvailableCategories(websiteCats);
+        }
+      } catch (error) {
+        console.error("Failed to fetch categories");
+      }
+    };
+    fetchCategories();
+  }, [formData.Website_Name]);
+
   useEffect(() => {
     if (open) {
       if (task) {
         setFormData(task);
-        if (!DEFAULT_CATEGORIES.includes(task.Category)) {
-          setIsCustomCategory(true);
-          setCustomCategory(task.Category);
-        } else {
-          setIsCustomCategory(false);
-        }
       } else {
         const randomId = `TSK-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
         setFormData({
@@ -56,8 +69,6 @@ export function TaskForm({ open, onOpenChange, task, onSave, fixedWebsites, isMa
           Start_Date: new Date().toISOString().split('T')[0],
           Due_Date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         });
-        setIsCustomCategory(false);
-        setCustomCategory("");
         setIsCustomWebsite(false);
         setCustomWebsite("");
         setIsCustomMainTask(false);
@@ -71,13 +82,7 @@ export function TaskForm({ open, onOpenChange, task, onSave, fixedWebsites, isMa
   };
 
   const handleCategoryChange = (v: string) => {
-    if (v === "CUSTOM") {
-      setIsCustomCategory(true);
-      handleChange("Category", "");
-    } else {
-      setIsCustomCategory(false);
-      handleChange("Category", v);
-    }
+    handleChange("Category", v);
   };
 
   const handleWebsiteChange = (v: string) => {
@@ -104,7 +109,6 @@ export function TaskForm({ open, onOpenChange, task, onSave, fixedWebsites, isMa
     e.preventDefault();
     onSave({
       ...formData,
-      Category: isCustomCategory ? customCategory : formData.Category,
       Website_Name: isCustomWebsite ? customWebsite : formData.Website_Name,
       Main_Task: isCustomMainTask ? customMainTask : formData.Main_Task
     });
@@ -190,25 +194,16 @@ export function TaskForm({ open, onOpenChange, task, onSave, fixedWebsites, isMa
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Category</Label>
-              {isCustomCategory ? (
-                <div className="flex gap-2">
-                  <Input 
-                    required 
-                    value={customCategory} 
-                    onChange={e => setCustomCategory(e.target.value)} 
-                    placeholder="Enter custom category" 
-                  />
-                  <Button type="button" variant="outline" onClick={() => setIsCustomCategory(false)}>X</Button>
-                </div>
-              ) : (
-                <Select value={formData.Category} onValueChange={(v: any) => handleCategoryChange(v)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {DEFAULT_CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                    {isManager && <SelectItem value="CUSTOM" className="font-bold text-blue-600">+ Add New Category</SelectItem>}
-                  </SelectContent>
-                </Select>
-              )}
+              <Select value={formData.Category || ""} onValueChange={(v: any) => handleCategoryChange(v)}>
+                <SelectTrigger><SelectValue placeholder={formData.Website_Name ? "Select a category" : "Select website first"} /></SelectTrigger>
+                <SelectContent>
+                  {availableCategories.length === 0 ? (
+                     <SelectItem value="none" disabled>No categories found</SelectItem>
+                  ) : (
+                     availableCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)
+                  )}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label>Assignee</Label>

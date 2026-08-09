@@ -171,3 +171,49 @@ export const appendLoginLog = async (values: any[]) => {
     },
   });
 };
+
+// Helpers for Categories
+export const fetchGoogleSheetCategories = async () => {
+  if (!process.env.SPREADSHEET_ID) return null;
+  const sheets = getSheetsInstance();
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: getSpreadsheetId(),
+    range: 'Categories!A2:C', // A: Website, B: Category Name
+  });
+  return res.data.values || [];
+};
+
+export const appendGoogleSheetCategory = async (values: any[]) => {
+  if (!process.env.SPREADSHEET_ID) return null;
+  const sheets = getSheetsInstance();
+  return await sheets.spreadsheets.values.append({
+    spreadsheetId: getSpreadsheetId(),
+    range: 'Categories!A:C',
+    valueInputOption: 'USER_ENTERED',
+    requestBody: {
+      values: [values],
+    },
+  });
+};
+
+export const deleteGoogleSheetCategoryRow = async (sheetId: number, rowIndex: number) => {
+  if (!process.env.SPREADSHEET_ID) return null;
+  const sheets = getSheetsInstance();
+  return await sheets.spreadsheets.batchUpdate({
+    spreadsheetId: getSpreadsheetId(),
+    requestBody: {
+      requests: [
+        {
+          deleteDimension: {
+            range: {
+              sheetId: sheetId,
+              dimension: 'ROWS',
+              startIndex: rowIndex - 1, // 0-indexed, inclusive
+              endIndex: rowIndex,       // 0-indexed, exclusive
+            }
+          }
+        }
+      ]
+    }
+  });
+};
