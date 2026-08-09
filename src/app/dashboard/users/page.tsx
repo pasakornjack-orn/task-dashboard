@@ -28,11 +28,11 @@ export default function UsersPage() {
       </div>
 
       <Tabs defaultValue="users" className="w-full">
-        <TabsList className="mb-4 bg-slate-100 dark:bg-slate-900">
-          <TabsTrigger value="users" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+        <TabsList className="flex flex-row h-10 w-fit items-center justify-start rounded-md bg-slate-100 dark:bg-slate-900 p-1 mb-6">
+          <TabsTrigger value="users" className="px-4 py-1.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:shadow-sm rounded-sm transition-all">
             User Management
           </TabsTrigger>
-          <TabsTrigger value="categories" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+          <TabsTrigger value="categories" className="px-4 py-1.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:shadow-sm rounded-sm transition-all">
             Category Management
           </TabsTrigger>
         </TabsList>

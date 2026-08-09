@@ -251,7 +251,13 @@ export function TaskForm({ open, onOpenChange, task, onSave, fixedWebsites, isMa
 
           <div className="space-y-2">
             <Label>Remarks / Notes</Label>
-            <Input value={formData.Checklist_Remarks || ""} onChange={e => handleChange("Checklist_Remarks", e.target.value)} placeholder="Optional notes..." />
+            <textarea 
+              rows={3} 
+              className="flex w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:bg-slate-950 dark:ring-offset-slate-950 dark:placeholder:text-slate-400 dark:focus-visible:ring-slate-300"
+              value={formData.Checklist_Remarks || ""} 
+              onChange={e => handleChange("Checklist_Remarks", e.target.value)} 
+              placeholder="Optional notes..." 
+            />
           </div>
 
           <DialogFooter className="pt-4">

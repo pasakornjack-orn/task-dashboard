@@ -8,6 +8,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 
@@ -22,6 +23,9 @@ export function CategoryManagement() {
   const [categories, setCategories] = useState<CategoryRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  
+  const [availableWebsites, setAvailableWebsites] = useState<string[]>([]);
+  const [isCustomWebsite, setIsCustomWebsite] = useState(false);
   
   const [newWebsite, setNewWebsite] = useState("");
   const [newCategory, setNewCategory] = useState("");
@@ -44,8 +48,22 @@ export function CategoryManagement() {
     }
   };
 
+  const fetchWebsites = async () => {
+    try {
+      const res = await fetch("/api/tasks");
+      if (res.ok) {
+        const data = await res.json();
+        const unique = Array.from(new Set(data.map((t: any) => t.Website_Name))) as string[];
+        setAvailableWebsites(unique);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   useEffect(() => {
     fetchCategories();
+    fetchWebsites();
   }, []);
 
   const handleAddCategory = async (e: React.FormEvent) => {
@@ -69,6 +87,7 @@ export function CategoryManagement() {
       setIsAddModalOpen(false);
       setNewWebsite("");
       setNewCategory("");
+      setIsCustomWebsite(false);
       fetchCategories();
     } catch (error) {
       toast.error("Failed to add category");
@@ -116,12 +135,36 @@ export function CategoryManagement() {
             <form onSubmit={handleAddCategory} className="space-y-4 pt-4">
               <div className="space-y-2">
                 <Label>Website Name</Label>
-                <Input 
-                  required 
-                  value={newWebsite} 
-                  onChange={e => setNewWebsite(e.target.value)} 
-                  placeholder="e.g. Website A"
-                />
+                {isCustomWebsite ? (
+                  <div className="flex gap-2">
+                    <Input 
+                      required 
+                      value={newWebsite} 
+                      onChange={e => setNewWebsite(e.target.value)} 
+                      placeholder="e.g. Website A"
+                    />
+                    <Button type="button" variant="outline" onClick={() => {
+                      setIsCustomWebsite(false);
+                      setNewWebsite("");
+                    }}>X</Button>
+                  </div>
+                ) : (
+                  <Select value={newWebsite} onValueChange={v => {
+                    if (v === "CUSTOM") {
+                      setIsCustomWebsite(true);
+                      setNewWebsite("");
+                    } else {
+                      setIsCustomWebsite(false);
+                      setNewWebsite(v || "");
+                    }
+                  }}>
+                    <SelectTrigger><SelectValue placeholder="Select a website" /></SelectTrigger>
+                    <SelectContent>
+                      {availableWebsites.map(w => <SelectItem key={w} value={w}>{w}</SelectItem>)}
+                      <SelectItem value="CUSTOM" className="font-bold text-blue-600">+ Add New Website</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
               <div className="space-y-2">
                 <Label>Category Name</Label>
