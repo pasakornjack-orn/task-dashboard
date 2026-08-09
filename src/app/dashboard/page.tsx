@@ -219,12 +219,12 @@ export default function DashboardPage() {
 
             {/* Right Side: Actions */}
             <div className="flex flex-row xl:flex-col items-center xl:items-end justify-between xl:justify-start gap-3 w-full xl:w-auto mt-2 xl:mt-0">
-              <Button variant="outline" size="sm" onClick={fetchTasks} disabled={loading} className="gap-2 w-full xl:w-auto">
+              <Button variant="outline" onClick={fetchTasks} disabled={loading} className="gap-2 w-full xl:w-auto h-10 px-4">
                 <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
               {user?.role !== "Viewer" && (
-                <Button size="sm" className="gap-2 bg-ci-green hover:bg-ci-green/90 text-white w-full xl:w-auto" onClick={handleAddNew}>
+                <Button className="gap-2 bg-ci-green hover:bg-ci-green/90 text-white w-full xl:w-auto h-10 px-4" onClick={handleAddNew}>
                   <PlusCircle className="w-4 h-4" />
                   Add Task
                 </Button>
