@@ -135,8 +135,10 @@ export default function DashboardPage() {
         {/* Top Filter Bar */}
         <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800">
             <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto">
+            <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-950 p-1 rounded-md border border-slate-200 dark:border-slate-800">
+              <span className="text-sm text-slate-500 pl-2">Website</span>
               <Select value={filterWebsite} onValueChange={(val: any) => setFilterWebsite(val)}>
-                <SelectTrigger className="w-[160px] bg-slate-50 dark:bg-slate-950">
+                <SelectTrigger className="w-[140px] border-none bg-transparent shadow-none focus:ring-0">
                   <SelectValue placeholder="All Websites" />
                 </SelectTrigger>
                 <SelectContent>
@@ -152,6 +154,7 @@ export default function DashboardPage() {
                   })}
                 </SelectContent>
               </Select>
+            </div>
 
             <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-950 p-1 rounded-md border border-slate-200 dark:border-slate-800">
               <span className="text-sm text-slate-500 pl-2">Month</span>
@@ -176,30 +179,36 @@ export default function DashboardPage() {
               <Input type="date" className="h-8 w-32 border-none bg-transparent px-1" value={dateRange.end} onChange={e => setDateRange(prev => ({ ...prev, end: e.target.value }))} />
             </div>
 
-            <Select value={filterStatus} onValueChange={(val: any) => setFilterStatus(val)}>
-              <SelectTrigger className="w-[140px] bg-slate-50 dark:bg-slate-950">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="All">All Statuses</SelectItem>
-                <SelectItem value="To Do">To Do</SelectItem>
-                <SelectItem value="In Progress">In Progress</SelectItem>
-                <SelectItem value="Under Review">Under Review</SelectItem>
-                <SelectItem value="Done">Done</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-950 p-1 rounded-md border border-slate-200 dark:border-slate-800">
+              <span className="text-sm text-slate-500 pl-2">Status</span>
+              <Select value={filterStatus} onValueChange={(val: any) => setFilterStatus(val)}>
+                <SelectTrigger className="w-[120px] border-none bg-transparent shadow-none focus:ring-0">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All">All Statuses</SelectItem>
+                  <SelectItem value="To Do">To Do</SelectItem>
+                  <SelectItem value="In Progress">In Progress</SelectItem>
+                  <SelectItem value="Under Review">Under Review</SelectItem>
+                  <SelectItem value="Done">Done</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-            <Select value={filterPriority} onValueChange={(val: any) => setFilterPriority(val)}>
-              <SelectTrigger className="w-[140px] bg-slate-50 dark:bg-slate-950">
-                <SelectValue placeholder="Priority" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="All">All Priorities</SelectItem>
-                <SelectItem value="High">High</SelectItem>
-                <SelectItem value="Medium">Medium</SelectItem>
-                <SelectItem value="Low">Low</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-950 p-1 rounded-md border border-slate-200 dark:border-slate-800">
+              <span className="text-sm text-slate-500 pl-2">Priority</span>
+              <Select value={filterPriority} onValueChange={(val: any) => setFilterPriority(val)}>
+                <SelectTrigger className="w-[120px] border-none bg-transparent shadow-none focus:ring-0">
+                  <SelectValue placeholder="Priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All">All Priorities</SelectItem>
+                  <SelectItem value="High">High</SelectItem>
+                  <SelectItem value="Medium">Medium</SelectItem>
+                  <SelectItem value="Low">Low</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="flex items-center gap-3 w-full xl:w-auto mt-2 xl:mt-0">
