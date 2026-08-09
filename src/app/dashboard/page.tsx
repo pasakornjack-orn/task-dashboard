@@ -133,96 +133,103 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
         {/* Top Filter Bar */}
-        <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800">
-            <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto">
-            <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-950 p-1 rounded-md border border-slate-200 dark:border-slate-800">
-              <span className="text-sm text-slate-500 pl-2">Website</span>
-              <Select value={filterWebsite} onValueChange={(val: any) => setFilterWebsite(val)}>
-                <SelectTrigger className="w-[140px] border-none bg-transparent shadow-none focus:ring-0">
-                  <SelectValue placeholder="All Websites" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="All">All Websites</SelectItem>
-                  {uniqueWebsites.map(w => {
-                    // Only show in filter dropdown if authorized
-                    const isAuthorized = user?.role === "Manager" || 
-                      (user?.role === "Viewer" && (!user?.assignedWebsites || user.assignedWebsites.length === 0)) ||
-                      ((user?.role === "Viewer" || user?.role === "Site Team Member") && 
-                       user?.assignedWebsites?.includes(w));
-                    if (!isAuthorized) return null;
-                    return <SelectItem key={w} value={w}>{w}</SelectItem>;
-                  })}
-                </SelectContent>
-              </Select>
+        <div className="flex flex-col xl:flex-row justify-between items-start bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 gap-4">
+            
+            {/* Left Side: Filters */}
+            <div className="flex flex-col gap-3 w-full xl:w-auto">
+              
+              {/* Row 1: Date Filter */}
+              <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-950 p-1 rounded-md border border-slate-200 dark:border-slate-800 w-fit">
+                <span className="text-sm text-slate-500 pl-2">Month</span>
+                <Input 
+                  type="month" 
+                  className="h-8 border-none bg-transparent" 
+                  value={dateRange.start.substring(0, 7)} 
+                  onChange={e => {
+                    if (!e.target.value) return;
+                    const [year, month] = e.target.value.split('-');
+                    const date = new Date(parseInt(year), parseInt(month) - 1, 1);
+                    setDateRange({
+                      start: format(startOfMonth(date), 'yyyy-MM-dd'),
+                      end: format(endOfMonth(date), 'yyyy-MM-dd')
+                    });
+                  }} 
+                />
+                <div className="h-4 w-px bg-slate-300 dark:bg-slate-700 mx-1"></div>
+                <span className="text-sm text-slate-500">Custom:</span>
+                <Input type="date" className="h-8 w-32 border-none bg-transparent px-1" value={dateRange.start} onChange={e => setDateRange(prev => ({ ...prev, start: e.target.value }))} />
+                <span className="text-sm text-slate-500">-</span>
+                <Input type="date" className="h-8 w-32 border-none bg-transparent px-1" value={dateRange.end} onChange={e => setDateRange(prev => ({ ...prev, end: e.target.value }))} />
+              </div>
+
+              {/* Row 2: Dropdown Filters */}
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-950 p-1 rounded-md border border-slate-200 dark:border-slate-800">
+                  <span className="text-sm text-slate-500 pl-2">Website</span>
+                  <Select value={filterWebsite} onValueChange={(val: any) => setFilterWebsite(val)}>
+                    <SelectTrigger className="w-[140px] border-none bg-transparent shadow-none focus:ring-0">
+                      <SelectValue placeholder="All Websites" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="All">All Websites</SelectItem>
+                      {uniqueWebsites.map(w => {
+                        const isAuthorized = user?.role === "Manager" || 
+                          (user?.role === "Viewer" && (!user?.assignedWebsites || user.assignedWebsites.length === 0)) ||
+                          ((user?.role === "Viewer" || user?.role === "Site Team Member") && 
+                           user?.assignedWebsites?.includes(w));
+                        if (!isAuthorized) return null;
+                        return <SelectItem key={w} value={w}>{w}</SelectItem>;
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-950 p-1 rounded-md border border-slate-200 dark:border-slate-800">
+                  <span className="text-sm text-slate-500 pl-2">Status</span>
+                  <Select value={filterStatus} onValueChange={(val: any) => setFilterStatus(val)}>
+                    <SelectTrigger className="w-[120px] border-none bg-transparent shadow-none focus:ring-0">
+                      <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="All">All Statuses</SelectItem>
+                      <SelectItem value="To Do">To Do</SelectItem>
+                      <SelectItem value="In Progress">In Progress</SelectItem>
+                      <SelectItem value="Under Review">Under Review</SelectItem>
+                      <SelectItem value="Done">Done</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-950 p-1 rounded-md border border-slate-200 dark:border-slate-800">
+                  <span className="text-sm text-slate-500 pl-2">Priority</span>
+                  <Select value={filterPriority} onValueChange={(val: any) => setFilterPriority(val)}>
+                    <SelectTrigger className="w-[120px] border-none bg-transparent shadow-none focus:ring-0">
+                      <SelectValue placeholder="Priority" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="All">All Priorities</SelectItem>
+                      <SelectItem value="High">High</SelectItem>
+                      <SelectItem value="Medium">Medium</SelectItem>
+                      <SelectItem value="Low">Low</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-950 p-1 rounded-md border border-slate-200 dark:border-slate-800">
-              <span className="text-sm text-slate-500 pl-2">Month</span>
-              <Input 
-                type="month" 
-                className="h-8 border-none bg-transparent" 
-                value={dateRange.start.substring(0, 7)} 
-                onChange={e => {
-                  if (!e.target.value) return;
-                  const [year, month] = e.target.value.split('-');
-                  const date = new Date(parseInt(year), parseInt(month) - 1, 1);
-                  setDateRange({
-                    start: format(startOfMonth(date), 'yyyy-MM-dd'),
-                    end: format(endOfMonth(date), 'yyyy-MM-dd')
-                  });
-                }} 
-              />
-              <div className="h-4 w-px bg-slate-300 dark:bg-slate-700 mx-1"></div>
-              <span className="text-sm text-slate-500">Custom:</span>
-              <Input type="date" className="h-8 w-32 border-none bg-transparent px-1" value={dateRange.start} onChange={e => setDateRange(prev => ({ ...prev, start: e.target.value }))} />
-              <span className="text-sm text-slate-500">-</span>
-              <Input type="date" className="h-8 w-32 border-none bg-transparent px-1" value={dateRange.end} onChange={e => setDateRange(prev => ({ ...prev, end: e.target.value }))} />
-            </div>
-
-            <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-950 p-1 rounded-md border border-slate-200 dark:border-slate-800">
-              <span className="text-sm text-slate-500 pl-2">Status</span>
-              <Select value={filterStatus} onValueChange={(val: any) => setFilterStatus(val)}>
-                <SelectTrigger className="w-[120px] border-none bg-transparent shadow-none focus:ring-0">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="All">All Statuses</SelectItem>
-                  <SelectItem value="To Do">To Do</SelectItem>
-                  <SelectItem value="In Progress">In Progress</SelectItem>
-                  <SelectItem value="Under Review">Under Review</SelectItem>
-                  <SelectItem value="Done">Done</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-950 p-1 rounded-md border border-slate-200 dark:border-slate-800">
-              <span className="text-sm text-slate-500 pl-2">Priority</span>
-              <Select value={filterPriority} onValueChange={(val: any) => setFilterPriority(val)}>
-                <SelectTrigger className="w-[120px] border-none bg-transparent shadow-none focus:ring-0">
-                  <SelectValue placeholder="Priority" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="All">All Priorities</SelectItem>
-                  <SelectItem value="High">High</SelectItem>
-                  <SelectItem value="Medium">Medium</SelectItem>
-                  <SelectItem value="Low">Low</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 w-full xl:w-auto mt-2 xl:mt-0">
-            <Button variant="outline" size="sm" onClick={fetchTasks} disabled={loading} className="gap-2">
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-              Refresh
-            </Button>
-            {user?.role !== "Viewer" && (
-              <Button size="sm" className="gap-2 bg-ci-green hover:bg-ci-green/90 text-white" onClick={handleAddNew}>
-                <PlusCircle className="w-4 h-4" />
-                Add Task
+            {/* Right Side: Actions */}
+            <div className="flex flex-row xl:flex-col items-center xl:items-end justify-between xl:justify-start gap-3 w-full xl:w-auto mt-2 xl:mt-0">
+              <Button variant="outline" size="sm" onClick={fetchTasks} disabled={loading} className="gap-2 w-full xl:w-auto">
+                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                Refresh
               </Button>
-            )}
-          </div>
+              {user?.role !== "Viewer" && (
+                <Button size="sm" className="gap-2 bg-ci-green hover:bg-ci-green/90 text-white w-full xl:w-auto" onClick={handleAddNew}>
+                  <PlusCircle className="w-4 h-4" />
+                  Add Task
+                </Button>
+              )}
+            </div>
         </div>
 
         {loading ? (
