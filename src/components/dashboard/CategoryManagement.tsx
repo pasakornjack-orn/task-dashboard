@@ -104,7 +104,7 @@ export function CategoryManagement() {
           <p className="text-sm text-slate-500 font-normal mt-1">Manage task categories for each website</p>
         </div>
         <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-          <DialogTrigger asChild>
+          <DialogTrigger>
             <Button className="bg-ci-green hover:bg-ci-green/90 text-white gap-2">
               <Plus className="w-4 h-4" /> Add Category
             </Button>
