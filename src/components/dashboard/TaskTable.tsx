@@ -66,7 +66,7 @@ export function TaskTable({ tasks, currentUser, onEditTask, onDeleteTask }: Task
       return;
     }
     
-    const headers = ["Main Task", "Sub Task", "Remark"];
+    const headers = ["Main Task", "Sub Task", "Status", "Remark"];
     const escapeCSV = (str: string) => {
       if (!str) return '""';
       return `"${str.replace(/"/g, '""')}"`;
@@ -75,6 +75,7 @@ export function TaskTable({ tasks, currentUser, onEditTask, onDeleteTask }: Task
     const rows = userTasks.map(t => [
       escapeCSV(t.Main_Task),
       escapeCSV(t.Task_Name),
+      escapeCSV(t.Status),
       escapeCSV(t.Checklist_Remarks || "")
     ].join(","));
     
