@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     if (!rows) return NextResponse.json({ error: "Google Sheets not configured" }, { status: 500 });
     
     // Find the user by username
-    const userIndex = rows.findIndex(r => r[1] === username);
+    const userIndex = rows.findIndex(r => r[1]?.toLowerCase() === username.toLowerCase());
     if (userIndex === -1) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
