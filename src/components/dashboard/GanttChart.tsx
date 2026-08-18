@@ -6,6 +6,7 @@ import { format, differenceInDays, addDays, startOfMonth, endOfMonth, isToday } 
 import React, { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { TaskViewModal } from "./TaskViewModal";
 
 interface GanttChartProps {
   tasks: Task[];
@@ -26,6 +27,8 @@ export function GanttChart({ tasks, dateRange }: GanttChartProps) {
   const daysArray = Array.from({ length: daysInView }, (_, i) => addDays(dateRange.start, i));
 
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
   const groupedTasks = tasks.reduce((acc, task) => {
     if (!acc[task.Main_Task]) acc[task.Main_Task] = [];
@@ -181,6 +184,7 @@ export function GanttChart({ tasks, dateRange }: GanttChartProps) {
           </div>
         </div>
       </CardContent>
+      <TaskViewModal task={selectedTask} isOpen={isViewModalOpen} onClose={() => setIsViewModalOpen(false)} />
     </Card>
   );
 }

@@ -5,9 +5,9 @@ import { Task } from "@/lib/types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronRight, Edit, Trash2, Eye, Download } from "lucide-react";
+import { ChevronDown, ChevronRight, Edit, Trash2, Eye, Download, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { TaskViewModal } from "./TaskViewModal";
 import { User } from "@/lib/types";
 
 interface TaskTableProps {
@@ -28,6 +28,7 @@ export function TaskTable({ tasks, currentUser, onEditTask, onDeleteTask }: Task
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [sortConfig, setSortConfig] = useState<{ key: keyof Task | null, direction: 'asc' | 'desc' }>({ key: null, direction: 'asc' });
 
   const groupedTasks = tasks.reduce((acc, task) => {
     if (!acc[task.Main_Task]) acc[task.Main_Task] = [];
@@ -66,16 +67,27 @@ export function TaskTable({ tasks, currentUser, onEditTask, onDeleteTask }: Task
       return;
     }
     
-    const headers = ["Main Task", "Sub Task", "Status", "Remark"];
+    const headers = [
+      "Task ID", "Website Name", "Main Task", "Sub Task", 
+      "Assignee", "Category", "Start Date", "Due Date", 
+      "Status", "Priority", "Remark"
+    ];
     const escapeCSV = (str: string) => {
       if (!str) return '""';
       return `"${str.replace(/"/g, '""')}"`;
     };
     
     const rows = userTasks.map(t => [
+      escapeCSV(t.Task_ID),
+      escapeCSV(t.Website_Name),
       escapeCSV(t.Main_Task),
       escapeCSV(t.Task_Name),
+      escapeCSV(t.Assignee),
+      escapeCSV(t.Category),
+      escapeCSV(t.Start_Date),
+      escapeCSV(t.Due_Date),
       escapeCSV(t.Status),
+      escapeCSV(t.Priority),
       escapeCSV(t.Checklist_Remarks || "")
     ].join(","));
     
@@ -91,6 +103,20 @@ export function TaskTable({ tasks, currentUser, onEditTask, onDeleteTask }: Task
     document.body.removeChild(link);
   };
 
+
+  const handleSort = (key: keyof Task) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const getSortIcon = (key: keyof Task) => {
+    if (sortConfig.key !== key) return <ArrowUpDown className="ml-2 h-4 w-4 inline text-slate-400" />;
+    return sortConfig.direction === 'asc' ? <ArrowUp className="ml-2 h-4 w-4 inline text-slate-800 dark:text-slate-200" /> : <ArrowDown className="ml-2 h-4 w-4 inline text-slate-800 dark:text-slate-200" />;
+  };
+
   return (
     <Card className="shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between">
@@ -104,13 +130,27 @@ export function TaskTable({ tasks, currentUser, onEditTask, onDeleteTask }: Task
           <TableHeader className="bg-slate-50 dark:bg-slate-900">
             <TableRow>
               <TableHead className="w-[40px]"></TableHead>
-              <TableHead>Task Name</TableHead>
-              <TableHead>Task ID</TableHead>
-              <TableHead>Assignee</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Start Date</TableHead>
-              <TableHead>Due Date</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 select-none whitespace-nowrap" onClick={() => handleSort('Task_Name')}>
+                Task Name {getSortIcon('Task_Name')}
+              </TableHead>
+              <TableHead className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 select-none whitespace-nowrap" onClick={() => handleSort('Task_ID')}>
+                Task ID {getSortIcon('Task_ID')}
+              </TableHead>
+              <TableHead className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 select-none whitespace-nowrap" onClick={() => handleSort('Assignee')}>
+                Assignee {getSortIcon('Assignee')}
+              </TableHead>
+              <TableHead className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 select-none whitespace-nowrap" onClick={() => handleSort('Category')}>
+                Category {getSortIcon('Category')}
+              </TableHead>
+              <TableHead className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 select-none whitespace-nowrap" onClick={() => handleSort('Start_Date')}>
+                Start Date {getSortIcon('Start_Date')}
+              </TableHead>
+              <TableHead className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 select-none whitespace-nowrap" onClick={() => handleSort('Due_Date')}>
+                Due Date {getSortIcon('Due_Date')}
+              </TableHead>
+              <TableHead className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 select-none whitespace-nowrap" onClick={() => handleSort('Status')}>
+                Status {getSortIcon('Status')}
+              </TableHead>
               {currentUser?.role !== "Viewer" && <TableHead className="text-right">Actions</TableHead>}
             </TableRow>
           </TableHeader>
@@ -142,7 +182,24 @@ export function TaskTable({ tasks, currentUser, onEditTask, onDeleteTask }: Task
                   </TableRow>
                   
                   {/* Child Rows */}
-                  {expandedGroups[mainTask] && groupedTasks[mainTask].map(task => {
+                  {expandedGroups[mainTask] && groupedTasks[mainTask].sort((a, b) => {
+                    if (!sortConfig.key) return 0;
+                    let aVal: any = a[sortConfig.key];
+                    let bVal: any = b[sortConfig.key];
+                    
+                    if (sortConfig.key === 'Task_ID') {
+                      // Numerical sort for Task_ID
+                      aVal = parseInt(String(aVal), 10) || 0;
+                      bVal = parseInt(String(bVal), 10) || 0;
+                    } else {
+                      aVal = String(aVal || '').toLowerCase();
+                      bVal = String(bVal || '').toLowerCase();
+                    }
+                    
+                    if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+                    if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+                    return 0;
+                  }).map(task => {
                     // Can delete if the user is the creator (or assignee as fallback if createdBy isn't set), or Manager
                     const canDelete = currentUser?.role === "Manager" || currentUser?.name === task.CreatedBy || (!task.CreatedBy && currentUser?.name === task.Assignee);
 
@@ -195,81 +252,7 @@ export function TaskTable({ tasks, currentUser, onEditTask, onDeleteTask }: Task
         </Table>
       </CardContent>
 
-      <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
-        <DialogContent className="sm:max-w-[600px] bg-white dark:bg-slate-950">
-          <DialogHeader>
-            <DialogTitle className="text-xl">Task Details</DialogTitle>
-          </DialogHeader>
-          
-          {selectedTask && (
-            <div className="space-y-4 py-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">{selectedTask.Task_Name}</h3>
-                  <p className="text-sm text-slate-500">ID: {selectedTask.Task_ID}</p>
-                </div>
-                <Badge variant={STATUS_VARIANTS[selectedTask.Status]} className={getStatusColor(selectedTask.Status)}>
-                  {selectedTask.Status}
-                </Badge>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 pt-2">
-                <div>
-                  <p className="text-sm font-medium text-slate-500">Website</p>
-                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{selectedTask.Website_Name}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-slate-500">Main Task</p>
-                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{selectedTask.Main_Task}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-slate-500">Assignee</p>
-                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{selectedTask.Assignee}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-slate-500">Category</p>
-                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{selectedTask.Category}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-slate-500">Start Date</p>
-                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{selectedTask.Start_Date}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-slate-500">Due Date</p>
-                  <p className={`text-sm font-semibold ${isOverdue(selectedTask.Due_Date, selectedTask.Status) ? 'text-red-600' : 'text-slate-900 dark:text-slate-100'}`}>
-                    {selectedTask.Due_Date} {isOverdue(selectedTask.Due_Date, selectedTask.Status) && "(Overdue)"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-slate-500">Priority</p>
-                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{selectedTask.Priority}</p>
-                </div>
-              </div>
-
-              <div className="pt-2 border-t mt-4">
-                <p className="text-sm font-medium text-slate-500 mb-2">Remarks / Notes</p>
-                <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-md min-h-[100px] text-sm whitespace-pre-wrap">
-                  {selectedTask.Checklist_Remarks || <span className="text-slate-400 italic">No remarks provided.</span>}
-                </div>
-              </div>
-            </div>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsViewModalOpen(false)}>Close</Button>
-            {currentUser?.role !== "Viewer" && selectedTask && (
-              <Button 
-                onClick={() => {
-                  setIsViewModalOpen(false);
-                  onEditTask(selectedTask);
-                }}
-                className="bg-ci-green hover:bg-ci-green/90 text-white"
-              >
-                <Edit className="w-4 h-4 mr-2" /> Edit Task
-              </Button>
-            )}
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <TaskViewModal task={selectedTask} isOpen={isViewModalOpen} onClose={() => setIsViewModalOpen(false)} />
     </Card>
   );
 }
