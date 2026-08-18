@@ -151,7 +151,11 @@ export function GanttChart({ tasks, dateRange }: GanttChartProps) {
 
                     return (
                       <div key={task.Task_ID} className="flex border-b border-slate-100 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/20 group relative z-10">
-                        <div className="w-64 flex-shrink-0 p-3 pl-12 text-sm truncate border-r border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300" title={task.Task_Name}>
+                        <div 
+                          className="w-64 flex-shrink-0 p-3 pl-12 text-sm truncate border-r border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" 
+                          title={task.Task_Name}
+                          onClick={() => { setSelectedTask(task); setIsViewModalOpen(true); }}
+                        >
                           {task.Task_Name}
                         </div>
                         <div className="flex-1 relative">
@@ -169,6 +173,7 @@ export function GanttChart({ tasks, dateRange }: GanttChartProps) {
                                 width: `${(visibleDuration / daysInView) * 100}%`
                               }}
                               title={`${task.Task_Name} (${task.Status})`}
+                              onClick={() => { setSelectedTask(task); setIsViewModalOpen(true); }}
                             >
                               {visibleDuration > 2 ? task.Assignee : ''}
                             </div>
