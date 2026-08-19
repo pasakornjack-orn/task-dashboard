@@ -11,6 +11,7 @@ import { TaskViewModal } from "./TaskViewModal";
 interface GanttChartProps {
   tasks: Task[];
   dateRange: { start: Date; end: Date };
+  onEditTask?: (task: Task) => void;
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -21,7 +22,7 @@ const STATUS_COLORS: Record<string, string> = {
   "Blocked": "bg-red-500 text-white",
 };
 
-export function GanttChart({ tasks, dateRange }: GanttChartProps) {
+export function GanttChart({ tasks, dateRange, onEditTask }: GanttChartProps) {
   // Generate days array for the grid
   const daysInView = differenceInDays(dateRange.end, dateRange.start) + 1;
   const daysArray = Array.from({ length: daysInView }, (_, i) => addDays(dateRange.start, i));
@@ -189,7 +190,12 @@ export function GanttChart({ tasks, dateRange }: GanttChartProps) {
           </div>
         </div>
       </CardContent>
-      <TaskViewModal task={selectedTask} isOpen={isViewModalOpen} onClose={() => setIsViewModalOpen(false)} />
+      <TaskViewModal 
+        task={selectedTask} 
+        isOpen={isViewModalOpen} 
+        onClose={() => setIsViewModalOpen(false)} 
+        onEdit={onEditTask}
+      />
     </Card>
   );
 }

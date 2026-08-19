@@ -241,6 +241,7 @@ export default function DashboardPage() {
             <GanttChart 
               tasks={filteredTasks} 
               dateRange={{ start: new Date(dateRange.start), end: new Date(dateRange.end) }} 
+              onEditTask={user?.role !== "Viewer" ? handleEdit : undefined}
             />
             <TaskTable tasks={filteredTasks} currentUser={user} onEditTask={handleEdit} onDeleteTask={handleDeleteTask} />
           </>

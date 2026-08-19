@@ -3,7 +3,7 @@ import { Task } from "@/lib/types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Edit } from "lucide-react";
 
 const STATUS_VARIANTS: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
   "To Do": "secondary",
@@ -26,9 +26,10 @@ interface TaskViewModalProps {
   task: Task | null;
   isOpen: boolean;
   onClose: () => void;
+  onEdit?: (task: Task) => void;
 }
 
-export function TaskViewModal({ task, isOpen, onClose }: TaskViewModalProps) {
+export function TaskViewModal({ task, isOpen, onClose, onEdit }: TaskViewModalProps) {
   if (!task) return null;
 
   return (
@@ -92,7 +93,13 @@ export function TaskViewModal({ task, isOpen, onClose }: TaskViewModalProps) {
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="flex flex-row justify-between w-full sm:justify-between items-center mt-6">
+          {onEdit ? (
+            <Button variant="outline" className="text-blue-600 border-blue-200 hover:bg-blue-50 dark:hover:bg-blue-900/20" onClick={() => { onEdit(task); onClose(); }}>
+              <Edit className="w-4 h-4 mr-2" />
+              Edit Task
+            </Button>
+          ) : <div></div>}
           <Button variant="outline" onClick={onClose}>Close</Button>
         </DialogFooter>
       </DialogContent>

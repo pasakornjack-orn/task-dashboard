@@ -252,7 +252,12 @@ export function TaskTable({ tasks, currentUser, onEditTask, onDeleteTask }: Task
         </Table>
       </CardContent>
 
-      <TaskViewModal task={selectedTask} isOpen={isViewModalOpen} onClose={() => setIsViewModalOpen(false)} />
+      <TaskViewModal 
+        task={selectedTask} 
+        isOpen={isViewModalOpen} 
+        onClose={() => setIsViewModalOpen(false)} 
+        onEdit={currentUser?.role !== "Viewer" ? onEditTask : undefined}
+      />
     </Card>
   );
 }
