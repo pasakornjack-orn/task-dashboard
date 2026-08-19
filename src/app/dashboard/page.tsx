@@ -11,6 +11,7 @@ import { TaskForm } from "@/components/dashboard/TaskForm";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { PlusCircle, RefreshCw } from "lucide-react";
 import { startOfMonth, endOfMonth, isWithinInterval, format } from "date-fns";
 
@@ -23,7 +24,7 @@ export default function DashboardPage() {
 
   // Global Filters
   const [filterWebsite, setFilterWebsite] = useState<string>("All");
-  const [filterStatus, setFilterStatus] = useState<string>("All");
+  const [filterStatus, setFilterStatus] = useState<string[]>([]);
   const [filterPriority, setFilterPriority] = useState<string>("All");
   
   // Date Range Filter (Default to current month)
@@ -60,7 +61,7 @@ export default function DashboardPage() {
   // Apply frontend filters
   const filteredTasks = tasks.filter(task => {
     if (filterWebsite !== "All" && task.Website_Name !== filterWebsite) return false;
-    if (filterStatus !== "All" && task.Status !== filterStatus) return false;
+    if (filterStatus.length > 0 && !filterStatus.includes(task.Status)) return false;
     if (filterPriority !== "All" && task.Priority !== filterPriority) return false;
     
     // Check if task falls within selected date range
@@ -186,18 +187,28 @@ export default function DashboardPage() {
 
                 <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-950 p-1 rounded-md border border-slate-200 dark:border-slate-800">
                   <span className="text-sm text-slate-500 pl-2">Status</span>
-                  <Select value={filterStatus} onValueChange={(val: any) => setFilterStatus(val)}>
-                    <SelectTrigger className="w-[120px] border-none bg-transparent shadow-none focus:ring-0">
-                      <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="All">All Statuses</SelectItem>
-                      <SelectItem value="To Do">To Do</SelectItem>
-                      <SelectItem value="In Progress">In Progress</SelectItem>
-                      <SelectItem value="Under Review">Under Review</SelectItem>
-                      <SelectItem value="Done">Done</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger className="flex h-8 w-[140px] items-center justify-between px-3 text-sm font-normal bg-transparent border-none shadow-none focus:outline-none focus:ring-0">
+                      {filterStatus.length === 0 ? "All Statuses" : `${filterStatus.length} Selected`}
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56">
+                      {["To Do", "In Progress", "Under Review", "Done"].map(status => (
+                        <DropdownMenuCheckboxItem
+                          key={status}
+                          checked={filterStatus.includes(status)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setFilterStatus([...filterStatus, status]);
+                            } else {
+                              setFilterStatus(filterStatus.filter(s => s !== status));
+                            }
+                          }}
+                        >
+                          {status}
+                        </DropdownMenuCheckboxItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
 
                 <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-950 p-1 rounded-md border border-slate-200 dark:border-slate-800">
