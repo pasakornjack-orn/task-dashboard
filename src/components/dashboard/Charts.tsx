@@ -77,7 +77,7 @@ export function Charts({ tasks }: ChartsProps) {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-8">
       {/* Status Distribution Doughnut Chart */}
       <Card className="shadow-sm">
         <CardHeader>
@@ -143,7 +143,7 @@ export function Charts({ tasks }: ChartsProps) {
       </Card>
 
       {/* Daily Task Volume Bar Chart */}
-      <Card className="shadow-sm md:col-span-2">
+      <Card className="shadow-sm lg:col-span-2">
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-slate-800 dark:text-slate-100">Daily Task Volume</CardTitle>
         </CardHeader>
