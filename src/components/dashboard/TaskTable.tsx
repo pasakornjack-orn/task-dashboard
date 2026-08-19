@@ -214,7 +214,9 @@ export function TaskTable({ tasks, currentUser, onEditTask, onDeleteTask }: Task
                       >
                         <TableCell></TableCell>
                         <TableCell className={`pl-6 text-sm ${isOverdue(task.Due_Date, task.Status) ? 'text-red-600 font-bold' : 'text-slate-600 dark:text-slate-300'}`}>
-                          {task.Task_Name}
+                          <div className="max-w-[200px] md:max-w-[300px] lg:max-w-[400px] truncate" title={task.Task_Name}>
+                            {task.Task_Name}
+                          </div>
                         </TableCell>
                         <TableCell className="text-xs text-slate-500">{task.Task_ID}</TableCell>
                         <TableCell className="text-sm">{task.Assignee}</TableCell>
