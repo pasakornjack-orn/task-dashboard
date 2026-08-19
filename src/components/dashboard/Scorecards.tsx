@@ -26,10 +26,10 @@ export function Scorecards({ tasks }: ScorecardsProps) {
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
       {cards.map((c, i) => (
         <Card key={i} className={`border-l-4 ${c.border} ${c.bgColor} shadow-sm hover:shadow-md transition-shadow`}>
-          <CardHeader className="flex flex-row items-center justify-between pb-2 pt-4 px-6 space-y-0">
+          <CardHeader className="flex flex-row items-center justify-between pb-1 pt-2 px-4 space-y-0">
             <CardTitle className={`text-base font-bold ${c.color}`}>{c.title}</CardTitle>
           </CardHeader>
-          <CardContent className="px-6 pb-4">
+          <CardContent className="px-4 pb-2">
             <div className={`text-4xl font-bold ${c.color}`}>{c.count}</div>
           </CardContent>
         </Card>
