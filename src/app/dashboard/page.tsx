@@ -192,6 +192,12 @@ export default function DashboardPage() {
                       {filterStatus.length === 0 ? "All Statuses" : `${filterStatus.length} Selected`}
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-56">
+                      <DropdownMenuCheckboxItem
+                        checked={filterStatus.length === 0}
+                        onCheckedChange={() => setFilterStatus([])}
+                      >
+                        All Statuses
+                      </DropdownMenuCheckboxItem>
                       {["To Do", "In Progress", "Under Review", "Done"].map(status => (
                         <DropdownMenuCheckboxItem
                           key={status}
